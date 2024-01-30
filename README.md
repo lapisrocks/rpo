@@ -8,7 +8,7 @@ This is the official repository for "[Robust Prompt Optimization for Defending L
 
 We include a notebook `demo.ipynb`  containing the minimal implementation of RPO, for defending Llama-2 against the popular AIM attack. The full code, which supports optimization across multiple jailbreaks and GCG, will be released soon!
 
-This can also be found on [Colab](https://colab.research.google.com/drive/1dinZSyP1E4KokSLPcCh1JQFUFsN-WV--?usp=sharing)
+This can also be found on [Colab](https://colab.research.google.com/drive/1Q3ngIwHAudhOYiVD4-V2NcHO0dfZUy2Z?usp=sharing)
 
 This repository is based on the GCG repository (https://github.com/llm-attacks/llm-attacks)
 
