@@ -26,6 +26,18 @@ pip install -e .
 
 Please follow the instructions to download LLaMA-2-7B-Chat first (we use the weights converted by HuggingFace [here](https://huggingface.co/meta-llama/Llama-2-7b-hf)).  
 
+## Examples
+
+Here are some example strings we optimized on Starling-7B and Llama2-7B-Chat
+```
+ol Brit astronom'));\"> It'+'> (\"_{\Footnote{[web Inst](# itidenote]{BWebachiv
+```
+
+```
+:}</'])language seems scary-----------}] estimation >>begin &=&pgf degli ({\ $|\textwidthAI NOTE:
+```
+
+
 
 ## Citation
 If you found our paper or repo interesting, thanks! Please consider citing the following
