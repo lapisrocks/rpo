@@ -4,7 +4,7 @@
 
 ![teaser](figure.png)
 
-This is the official repository for "[Robust Prompt Optimization for Defending Language Models Against Jailbreaking Attacks]()" by [Andy Zhou](https://andyz245.github.io/), [Bo Li](https://aisecure.github.io/), and [Haohan Wang](https://haohanwang.github.io/).
+This is the official repository for "[Robust Prompt Optimization for Defending Language Models Against Jailbreaking Attacks](https://arxiv.org/abs/2401.17263)" by [Andy Zhou](https://andyz245.github.io/), [Bo Li](https://aisecure.github.io/), and [Haohan Wang](https://haohanwang.github.io/).
 
 We include a notebook `demo.ipynb`  containing the minimal implementation of RPO, for defending Llama-2 against the popular AIM attack. The full code, which supports optimization across multiple jailbreaks and GCG, will be released soon!
 
@@ -31,7 +31,14 @@ Please follow the instructions to download LLaMA-2-7B-Chat first (we use the wei
 If you found our paper or repo interesting, thanks! Please consider citing the following
 
 ```
-
+@misc{zhou2024robust,
+      title={Robust Prompt Optimization for Defending Language Models Against Jailbreaking Attacks}, 
+      author={Andy Zhou and Bo Li and Haohan Wang},
+      year={2024},
+      eprint={2401.17263},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG}
+}
 ```
 
 ## License
