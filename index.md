@@ -1,13 +1,11 @@
 
-[Paper](https://arxiv.org/abs/2401.17263) | [Code](https://github.com/andyz245/rpo)
-  
-
-           |  
-:-------------------------:|:-------------------------:
-![gpt4](figures/gpt4.JPEG)  |  ![rpo](figures/gpt4_rpo.png)  
+[Paper](https://arxiv.org/abs/2401.17263) | [Code](https://github.com/andyz245/rpo) 
 
 
 # Robust Prompt Optimization for Defending Language Models Against Jailbreaking Attacks
+
+![gpt4](figures/gpt4.JPEG)
+![rpo](figures/gpt4_rpo.png) 
 
 
 ## Abstract
