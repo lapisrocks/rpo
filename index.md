@@ -6,7 +6,14 @@
 
 <p align="center">
   <img src="figures/gpt4.png" alt="GPT-4" width="450" style="margin-right: 1px;"/>
+  <br>
+  <em>GPT-4 can be jailbroken! Safety filters can be bypassed by prompts, resulting in harmful responses.</em>
+</p>
+
+<p align="center">
   <img src="figures/gpt4_rpo.png" alt="RPO" width="450" style="margin-left: 1px;"/>
+   <br>
+  <em>RPO prevents this by enforcing harmless responses even when jailbreaks are applied.</em>
 </p>
 
 
