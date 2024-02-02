@@ -4,16 +4,14 @@
 
 # Robust Prompt Optimization for Defending Language Models Against Jailbreaking Attacks
 
-<div style="display: flex; justify-content: center; align-items: center;">
-  <div style="flex: 1; text-align: center; margin: 0 10px;">
+<div style="display: flex; justify-content: center; align-items: flex-start;">
+  <div style="margin-right: 10px;">
     <img src="figures/gpt4.png" alt="GPT-4" width="300"/>
-    <br>
-    <em>Fig.1 GPT-4 safety filters can be bypassed by jailbreaks!</em>
+    <p style="text-align: center;"><em>Fig.1 GPT-4 safety filters can be bypassed by jailbreaks!</em></p>
   </div>
-  <div style="flex: 1; text-align: center; margin: 0 10px;">
+  <div>
     <img src="figures/gpt4_rpo.png" alt="RPO" width="300"/>
-    <br>
-    <em>Fig.2 RPO enforces harmless responses even after jailbreaks</em>
+    <p style="text-align: center;"><em>Fig.2 RPO enforces harmless responses even after jailbreaks</em></p>
   </div>
 </div>
 
