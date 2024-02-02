@@ -4,8 +4,7 @@
 
 # Robust Prompt Optimization for Defending Language Models Against Jailbreaking Attacks
 
-![gpt4](figures/gpt4.JPEG)
-![rpo](figures/gpt4_rpo.png) 
+![gpt4](figures/gpt4.JPEG) ![rpo](figures/gpt4_rpo.png) 
 
 
 ## Abstract
