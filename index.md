@@ -2,9 +2,9 @@
 [Paper](https://arxiv.org/abs/2401.17263) | [Code](https://github.com/andyz245/rpo)
   
 
-GPT-4             |  GPT-4 with RPO
+           |  
 :-------------------------:|:-------------------------:
-![](pics/gpt4.png)  |  ![](pics/gpt4_rpo.png)  
+![](pics/gpt4.JPEG)  |  ![](pics/gpt4_rpo.png)  
 
 
 # Robust Prompt Optimization for Defending Language Models Against Jailbreaking Attacks
@@ -18,7 +18,7 @@ While large language models (LLMs) have demonstrated impressive performance on a
 
 ## Results
   
-![](pics/gpt4_results.png)
+![](pics/transfer.png)
 
 
 
