@@ -7,11 +7,11 @@
 
 <div style="display: flex; justify-content: space-between; align-items: flex-start;">
   <div>
-    <img src="figures/gpt4.png" alt="GPT-4" width="400"/>
+    <img src="figures/gpt4.png" alt="GPT-4" width="300"/>
     <p style="text-align: center; margin-top: 0;"><em>Fig.1 GPT-4 safety filters can be bypassed by jailbreaks!</em></p>
   </div>
   <div>
-    <img src="figures/gpt4_rpo.png" alt="RPO" width="400"/>
+    <img src="figures/gpt4_rpo.png" alt="RPO" width="300"/>
     <p style="text-align: center; margin-top: 0;"><em>Fig.2 RPO enforces harmless responses even after jailbreaks</em></p>
   </div>
 </div>
