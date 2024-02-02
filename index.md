@@ -8,12 +8,12 @@
 <p align="center">
   <table>
     <tr>
-      <td><img src="figures/gpt4.png" alt="GPT-4" width="450" style="margin-right: 10px;"/></td>
-      <td><img src="figures/gpt4_rpo.png" alt="RPO" width="450" style="margin-left: 10px;"/></td>
+      <td><img src="figures/gpt4.png" alt="GPT-4" width="450" style="margin-right: 6px;"/></td>
+      <td><img src="figures/gpt4_rpo.png" alt="RPO" width="450" style="margin-left: 6px;"/></td>
     </tr>
     <tr>
-      <td align="center"><em>GPT-4 safety filters can be bypassed by jailbreaks</em></td>
-      <td align="center"><em>RPO enforces harmless responses even after jailbreaks</em></td>
+      <td align="center"><em>Fig.1 GPT-4 safety filters can be bypassed by jailbreaks!</em></td>
+      <td align="center"><em>Fig.2 RPO enforces harmless responses and improves safety</em></td>
     </tr>
   </table>
 </p>
