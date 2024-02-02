@@ -4,9 +4,9 @@
 
 # Robust Prompt Optimization for Defending Language Models Against Jailbreaking Attacks
 
-<p>
-  <img src="figures/gpt4.JPEG" width="400" />
-  <img src="figures/gpt4_rpo.png" width="400" /> 
+<p align="center">
+  <img src="figures/gpt4.JPEG" alt="GPT-4" width="350" style="margin-right: 10px;"/>
+  <img src="figures/gpt4_rpo.png" alt="RPO" width="350" style="margin-left: 10px;"/>
 </p>
 
 
