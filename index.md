@@ -4,7 +4,7 @@
 
            |  
 :-------------------------:|:-------------------------:
-![gpt4](pics/gpt4.JPEG)  |  ![rpo](pics/gpt4_rpo.png)  
+![gpt4](figures/gpt4.JPEG)  |  ![rpo](figures/gpt4_rpo.png)  
 
 
 # Robust Prompt Optimization for Defending Language Models Against Jailbreaking Attacks
@@ -18,7 +18,7 @@ While large language models (LLMs) have demonstrated impressive performance on a
 
 ## Results
   
-![res](pics/transfer.png)
+![res](figures/transfer.png)
 
 
 
