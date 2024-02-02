@@ -5,7 +5,7 @@
 # Robust Prompt Optimization for Defending Language Models Against Jailbreaking Attacks
 
 
-<div style="display: flex; justify-content: center; align-items: flex-start; gap: 1px;">
+<div style="display: flex; justify-content: space-between; align-items: flex-start;">
   <div>
     <img src="figures/gpt4.png" alt="GPT-4" width="400"/>
     <p style="text-align: center; margin-top: 0;"><em>Fig.1 GPT-4 safety filters can be bypassed by jailbreaks!</em></p>
