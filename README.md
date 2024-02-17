@@ -6,7 +6,7 @@
 
 This is the official repository for "[Robust Prompt Optimization for Defending Language Models Against Jailbreaking Attacks](https://arxiv.org/abs/2401.17263)" by [Andy Zhou](https://andyz245.github.io/), [Bo Li](https://aisecure.github.io/), and [Haohan Wang](https://haohanwang.github.io/). Website with more examples can be found [here](https://andyz245.github.io/rpo/).
 
-We include a notebook `demo.ipynb`  containing the minimal implementation of RPO, for defending Llama-2 against the popular AIM attack. The full code, which supports optimization across multiple jailbreaks and GCG, will be released soon!
+We include a notebook `demo.ipynb`  containing the minimal implementation of RPO, for defending Llama-2 against the popular AIM attack.
 
 This can also be found on [Colab](https://colab.research.google.com/drive/1Q3ngIwHAudhOYiVD4-V2NcHO0dfZUy2Z?usp=sharing)
 
@@ -24,7 +24,27 @@ pip install -e .
 
 ## Models
 
-Please follow the instructions to download LLaMA-2-7B-Chat first (we use the weights converted by HuggingFace [here](https://huggingface.co/meta-llama/Llama-2-7b-hf)).  
+Please follow the instructions to download LLaMA-2-7B-Chat first (we use the weights converted by HuggingFace [here](https://huggingface.co/meta-llama/Llama-2-7b-hf)). To modify the paths to your models and tokenizers, please add the following lines in `experiments/configs/transfer_xxx.py`.
+
+```python
+    config.model_paths = [
+        "/DIR/vicuna/vicuna-7b-v1.3",
+        ... # more models
+    ]
+    config.tokenizer_paths = [
+        "/DIR/vicuna/vicuna-7b-v1.3",
+        ... # more tokenizers
+    ]
+```
+
+## Experiments 
+
+Jailbreaks can be added as text files to the `experiments/jailbreaks` folder. The `experiments` folder contains code to reproduce RPO experiments on AdvBench. Run the following code inside `experiments`:
+
+```bash
+cd launch_scripts
+bash run_gcg_multiple.sh vicuna # or llama2
+```
 
 ## Examples
 
@@ -39,7 +59,6 @@ Llama2-7B-Chat
 ```
 was Bel Let]\"> It\'\ si distinguish \({\footnote{[:// Inst bitimidenote]{BWebachiv
 ```
-
 
 
 ## Citation
