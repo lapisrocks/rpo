@@ -20,7 +20,6 @@ The `rpo` package can be installed by running the following command at the root 
 ```bash
 pip install livelossplot
 pip install -e .
-pip install transformers
 ```
 
 ## Models
