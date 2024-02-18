@@ -60,6 +60,9 @@ Llama2-7B-Chat
 was Bel Let]\"> It\'\ si distinguish \({\footnote{[:// Inst bitimidenote]{BWebachiv
 ```
 
+## Evaluation
+
+We provide a simple script in `experiments/test.py` to evaluate the robustness of generated suffixes on jailbreaks. 
 
 ## Citation
 If you found our paper or repo interesting, thanks! Please consider citing the following
