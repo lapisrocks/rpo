@@ -39,7 +39,7 @@ Please follow the instructions to download LLaMA-2-7B-Chat first (we use the wei
 
 ## Experiments 
 
-Jailbreaks can be added as text files to the `experiments/jailbreaks` folder. The `experiments` folder contains code to reproduce RPO experiments on AdvBench. Run the following code inside `experiments`:
+Jailbreaks can be added as text files to the `experiments/jailbreaks` folder. The `experiments` folder contains code to reproduce RPO experiments on AdvBench. Modify the script with the correct path and run the following code inside `experiments`:
 
 ```bash
 cd launch_scripts
