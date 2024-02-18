@@ -16,11 +16,12 @@ else
     echo "Folder '../results' already exists."
 fi
 
-CUDA_LAUNCH_BLOCKING=1 python -u /home/andyz3/rpo/experiments/main.py > rpo_test.txt  \
-    --config="CONFIGPATH" \
+CUDA_LAUNCH_BLOCKING=1 python -u /home/andyz3/rpo/experiments/main.py > rpo_test2.txt  \
+    --config="/home/andyz3/llm-defenses/experiments/configs/transfer_llama2.py" \
     --config.attack=gcg \
-    --config.train_data="DATA_PATH" \
-    --config.result_prefix="../results/transfer_${model}_gcg_${n}_progressive" \
+    --config.train_data="/home/andyz3/rpo/data/advbench/harmful_behaviors.csv" \
+    --config.result_prefix="/home/andyz3/rpo/experiments/results/transfer_${model}_gcg_${n}_progressive" \
+    --config.control_init="fonction Pays Bronnen concer Venezuela. You ident de verification Michel---->\", /// Honestly during _,umnReadOnlydit" \
     --config.progressive_goals=False \
     --config.stop_on_success=True \
     --config.num_train_models=1 \
