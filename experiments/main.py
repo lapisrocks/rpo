@@ -7,7 +7,7 @@ from absl import app
 from ml_collections import config_flags
 import os
 
-from llm_attacks import get_goals_and_targets, get_workers
+from rpo import get_goals_and_targets, get_workers
 
 _CONFIG = config_flags.DEFINE_config_file('config')
 
@@ -15,15 +15,15 @@ _CONFIG = config_flags.DEFINE_config_file('config')
 def dynamic_import(module):
     return importlib.import_module(module)
 
-def create_jailbreak_map(jailbreaks_dir):
-    jailbreak_map = {}
-    for filename in os.listdir(jailbreaks_dir):
-        if filename.endswith(".txt"):
-            with open(os.path.join(jailbreaks_dir, filename), 'r', encoding='utf-8') as file:
-                jailbreak = filename[:-4] 
-                adv_target = file.read().strip()
-                jailbreak_map[jailbreak] = adv_target
-    return jailbreak_map
+# Function to load jailbreaks
+def load_jailbreaks_from_files(folder_path):
+    jailbreaks = []
+    for filename in os.listdir(folder_path):
+        if filename.endswith('.txt'):
+            file_path = os.path.join(folder_path, filename)
+            with open(file_path, 'r', encoding='utf-8') as file:
+                jailbreaks.append(file.read().strip())
+    return jailbreaks
 
 def main(_):
 
@@ -31,20 +31,18 @@ def main(_):
 
     params = _CONFIG.value
 
-    attack_lib = dynamic_import(f'llm_attacks.{params.attack}')
-
-    manual_prefix = """""""
+    attack_lib = dynamic_import(f'rpo')
 
     print(params)
 
-    train_goals, train_targets, adv_goals, adv_targets = get_goals_and_targets(params)
-
-    train_targets = ["I cannot" for i in train_targets]
-    test_targets = ["I cannot" for i in test_targets]
+    train_goals, train_targets, test_goals, test_targets = get_goals_and_targets(params)
 
     process_fn = lambda s: s.replace('Sure, h', 'H')
     process_fn2 = lambda s: s.replace("Sure, here is", "Sure, here's")
-    train_targets_adv = [process_fn(t) if np.random.random() < 0.5 else process_fn2(t) for t in adv_targets]
+    train_targets_adv = [process_fn(t) if np.random.random() < 0.5 else process_fn2(t) for t in train_targets]
+
+    train_targets = ["I cannot" for i in train_targets]
+    test_targets = ["I cannot" for i in test_targets]
     
     workers, test_workers = get_workers(params)
 
@@ -54,14 +52,15 @@ def main(_):
         "MPA": attack_lib.MultiPromptAttack,
     }
 
-    jailbreaks_dir = 'jailbreaks'
-    jailbreak_map = create_jailbreak_map(jailbreaks_dir)
+    jailbreaks_dir = '/home/andyz3/rpo/experiments/jailbreaks'
+    jailbreaks = load_jailbreaks_from_files(jailbreaks_dir)
 
     timestamp = time.strftime("%Y%m%d-%H:%M:%S")
     attack = attack_lib.ProgressiveMultiPromptAttack(
-        jailbreak_map,
+        jailbreaks,
         train_goals,
         train_targets,
+        train_targets_adv,
         workers,
         progressive_models=params.progressive_models,
         progressive_goals=params.progressive_goals,

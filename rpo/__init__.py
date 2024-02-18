@@ -1,6 +1,18 @@
-from .gcg_attack import GCGAttackPrompt as AttackPrompt
-from .gcg_attack import GCGPromptManager as PromptManager
-from .gcg_attack import GCGMultiPromptAttack as MultiPromptAttack
+__version__ = '0.0.1'
 
-from llm_attacks import ProgressiveMultiPromptAttack
-from llm_attacks import IndividualPromptAttack
+from .suffix_manager import (
+    AttackPrompt,
+    PromptManager,
+    MultiPromptAttack,
+    ProgressiveMultiPromptAttack,
+    get_embedding_layer,
+    get_embedding_matrix,
+    get_embeddings,
+    get_nonascii_toks,
+    get_goals_and_targets,
+    get_workers
+)
+
+from .gcg import GCGAttackPrompt as AttackPrompt
+from .gcg import GCGPromptManager as PromptManager
+from .gcg import GCGMultiPromptAttack as MultiPromptAttack

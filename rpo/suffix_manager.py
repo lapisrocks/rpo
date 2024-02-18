@@ -350,16 +350,14 @@ class AttackPrompt(object):
         return loss
 
     def adv_target_loss(self, logits, ids):
-        adv_target_tokens = self.tokenizer(self.adv_target, add_special_tokens=False).input_ids
-        adv_target_len = len(adv_target_tokens)
-        adv_target_slice = self._adv_target_slice 
-        
         crit = nn.CrossEntropyLoss(reduction='none')
-        
-        loss_slice = slice(adv_target_slice.start-1, adv_target_slice.stop-1)
-        
-        loss = crit(logits[:, loss_slice, :].transpose(1, 2), ids[:, adv_target_slice])
-        
+        original_target = self.target_str
+        self.target_str = self.adv_target
+        loss_slice = slice(self._target_slice.start-1, self._target_slice.stop-1)
+
+        loss = crit(logits[:, loss_slice, :].transpose(1, 2), ids[:, self._target_slice.start-1:self._target_slice.stop-1])
+
+        self.target_str = original_target
         return loss
     
     @property
@@ -378,6 +376,10 @@ class AttackPrompt(object):
     def jailbreak_str(self, jailbreak):
         self.jailbreak = jailbreak
         self._update_ids()
+
+    @property
+    def adv_target_str(self):
+        return self.adv_target
 
     @adv_target_str.setter
     def adv_target_str(self, adv_target):
@@ -447,9 +449,10 @@ class AttackPrompt(object):
 class PromptManager(object):
     """A class used to manage the prompt during optimization."""
     def __init__(self,
-        jailbreak_map,
+        jailbreaks,
         goals,
         targets,
+        adv_targets,
         tokenizer,
         conv_template,
         control_init="! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !",
@@ -484,16 +487,18 @@ class PromptManager(object):
             raise ValueError("Must provide at least one goal, target pair")
 
         self.tokenizer = tokenizer
-        self.jailbreak_map = jailbreak_map
+        self.jailbreaks = jailbreaks
+        self.adv_targets = adv_targets
+        self._prompts = []
 
-        for goal, target in zip(goals, targets):
-            jailbreak, adv_target = random.choice(list(self.jailbreak_map.items()))
+        for goal, target, adv_target in zip(goals, targets, adv_targets):
+            jailbreak = random.choice(jailbreaks)
             
             prompt = managers['AP'](
                 jailbreak=jailbreak, 
                 goal=goal,
                 target=target,
-                adv_target=adv_target, 
+                adv_target=adv_target,
                 tokenizer=tokenizer,
                 conv_template=conv_template,
                 control_init=control_init,
@@ -554,26 +559,21 @@ class PromptManager(object):
         for prompt in self._prompts:
             min_loss = float('inf')  
             best_jailbreak = None
-            best_adv_target = None
             
-            for jailbreak, adv_target in self.jailbreak_map.items():
-                original_jailbreak, original_adv_target = prompt.jailbreak, prompt.adv_target
-                prompt.jailbreak_str(jailbreak)
-                prompt.adv_target_str(adv_target)
+            for jailbreak in self.jailbreaks:
+                original_jailbreak = prompt.jailbreak
+                prompt.jailbreak_str = jailbreak
                 prompt._update_ids()  
                 
                 adv_loss = prompt.test_adv_loss(model)
                 
                 if adv_loss < min_loss:
                     min_loss = adv_loss
-                    best_jailbreak, best_adv_target = jailbreak, adv_target
+                    best_jailbreak = jailbreak
                 
-                prompt.jailbreak_str(original_jailbreak)
-                prompt.adv_target_str(original_adv_target)
+                prompt.jailbreak_str = original_jailbreak
                 prompt._update_ids() 
-            print("NEW JAILBREAK", best_jailbreak)
-            prompt.jailbreak_str(best_jailbreak)
-            prompt.adv_target_str(best_adv_target)
+            prompt.jailbreak_str = best_jailbreak
             prompt._update_ids()  
     
     def sample_control(self, *args, **kwargs):
@@ -614,9 +614,10 @@ class PromptManager(object):
 class MultiPromptAttack(object):
     """A class used to manage multiple prompt-based attacks."""
     def __init__(self, 
-        jailbreak_map,
+        jailbreaks,
         goals, 
         targets,
+        adv_targets,
         workers,
         control_init="! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !",
         test_prefixes=["I'm sorry", "I apologize", "As an", "I'm just", "I'm an", "I cannot", "Hello!"],
@@ -632,8 +633,6 @@ class MultiPromptAttack(object):
 
         Parameters
         ----------
-        jailbreak_map : jailbreak/adv_target dictionary
-            the jailbreaks and corresponding targets
         goals : list of str
             The list of intended goals of the attack
         targets : list of str
@@ -656,9 +655,10 @@ class MultiPromptAttack(object):
             The list of test workers used in the attack
         """
 
-        self.jailbreak_map = jailbreak_map
+        self.jailbreaks = jailbreaks
         self.goals = goals
         self.targets = targets
+        self.adv_targets = adv_targets
         self.workers = workers
         self.test_goals = test_goals
         self.test_targets = test_targets
@@ -668,9 +668,10 @@ class MultiPromptAttack(object):
         self.logfile = logfile
         self.prompts = [
             managers['PM'](
-                jailbreak_map,
+                jailbreaks,
                 goals,
                 targets,
+                adv_targets,
                 worker.tokenizer,
                 worker.conv_template,
                 control_init,
@@ -909,9 +910,10 @@ class MultiPromptAttack(object):
 class ProgressiveMultiPromptAttack(object):
     """A class used to manage multiple progressive prompt-based attacks."""
     def __init__(self, 
-        jailbreak_map,
+        jailbreaks,
         goals, 
         targets,
+        adv_targets,
         workers,
         progressive_goals=True,
         progressive_models=True,
@@ -956,9 +958,10 @@ class ProgressiveMultiPromptAttack(object):
             The list of test workers used in the attack
         """
         
-        self.jailbreak_map = jailbreak_map
+        self.jailbreaks = jailbreaks
         self.goals = goals
         self.targets = targets
+        self.adv_targets = adv_targets
         self.workers = workers
         self.test_goals = test_goals
         self.test_targets = test_targets
@@ -1093,9 +1096,10 @@ class ProgressiveMultiPromptAttack(object):
 
         while step < n_steps:
             attack = self.managers['MPA'](
-                self.jailbreak_map,
+                self.jailbreaks,
                 self.goals[:num_goals], 
                 self.targets[:num_goals],
+                self.adv_targets[:num_goals],
                 self.workers[:num_workers],
                 self.control,
                 self.test_prefixes,
