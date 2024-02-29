@@ -48,7 +48,7 @@ bash run_gcg_multiple.sh vicuna # or llama2
 
 ## Examples
 
-Here are some example strings we optimized.
+Here are some example strings we optimized. These are effective across language models and jailbreaks.
 
 Starling-7B
 ```
