@@ -133,9 +133,10 @@ class GCGMultiPromptAttack(MultiPromptAttack):
 
         main_device = self.models[0].device
         control_cands = []
+        control_cand = []
 
         for j, worker in enumerate(self.workers):
-            worker(self.prompts[j], "grad", worker.model)
+            worker(self.prompts[j], "grad")
 
         # Aggregate gradients
         grad = None
@@ -153,8 +154,14 @@ class GCGMultiPromptAttack(MultiPromptAttack):
                 grad += new_grad
 
         with torch.no_grad():
+            
             control_cand = self.prompts[j].sample_control(grad, batch_size, topk, temp, allow_non_ascii)
-            control_cands.append(self.get_filtered_cands(j, control_cand, filter_cand=filter_cand, curr_control=self.control_str))
+            #print(control_cand)
+            while control_cand is None:
+                control_cand = self.prompts[j].sample_control(grad, batch_size, topk, temp, allow_non_ascii)
+            filtered = self.get_filtered_cands(j, control_cand, filter_cand=filter_cand, curr_control=self.control_str)
+            control_cands.append(filtered)
+        
         del grad, control_cand ; gc.collect()
         
         # Search
@@ -166,7 +173,7 @@ class GCGMultiPromptAttack(MultiPromptAttack):
                 progress = tqdm(range(len(self.prompts[0])), total=len(self.prompts[0])) if verbose else enumerate(self.prompts[0])
                 for i in progress:
                     for k, worker in enumerate(self.workers):
-                        worker(self.prompts[k][i], "logits", worker.model, cand, return_ids=True)
+                        worker(self.prompts[k][i], "logits", cand, return_ids=True)
                     logits, ids = zip(*[worker.results.get() for worker in self.workers])
                     loss[j*batch_size:(j+1)*batch_size] += sum([
                         target_weight*self.prompts[k][i].target_loss(logit, id).mean(dim=-1).to(main_device) 

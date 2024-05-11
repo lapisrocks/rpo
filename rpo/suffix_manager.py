@@ -3,8 +3,10 @@ import json
 import math
 import random
 import time
+import subprocess
 from copy import deepcopy
 from typing import Optional, Any
+import shlex
 
 import numpy as np
 import pandas as pd
@@ -12,6 +14,7 @@ import torch
 import torch.multiprocessing as mp
 import torch.nn as nn
 import torch.nn.functional as F
+
 from fastchat.model import get_conversation_template
 from transformers import (AutoModelForCausalLM, AutoTokenizer, GPT2LMHeadModel,
                           GPTJForCausalLM, GPTNeoXForCausalLM, MistralForCausalLM,
@@ -559,12 +562,41 @@ class PromptManager(object):
         for prompt in self._prompts:
             min_loss = float('inf')  
             best_jailbreak = None
-            
-            for jailbreak in self.jailbreaks:
+
+            #print(prompt.control)
+
+            pair_command = [
+                "python3", "/home/andyz3/rpo/rpo/attacks/JailbreakingLLMs/main.py",
+                "--attack-model", "gpt-4",
+                "--target-model", "gpt-4",
+                "--judge-model", "gpt-4",
+                "--goal", prompt.goal,
+                "--target-str", prompt.target_str,
+                "--suffix", prompt.control
+            ]
+
+            print(prompt.control)
+
+            # Execute the command without shell=True
+            #pair_result = subprocess.run(pair_command, capture_output=True, text=True)
+
+            # Execute the command without shell=True
+            try:
+                pair_result = subprocess.run(pair_command, capture_output=True, text=True)
+                if pair_result.returncode == 0:
+                    print("Command executed successfully:", pair_result.stdout)
+                    pair_prompt = pair_result.stdout.strip()
+                else:
+                    print(f"Error executing PAIR command: {pair_result.stderr}")
+                    pair_prompt = None
+            except Exception as e:
+                print("An error occurred while running the external command:", str(e))
+
+            for jailbreak in self.jailbreaks + ([pair_prompt] if pair_prompt else []):
                 original_jailbreak = prompt.jailbreak
                 prompt.jailbreak_str = jailbreak
                 prompt._update_ids()  
-                
+
                 adv_loss = prompt.test_adv_loss(model)
                 
                 if adv_loss < min_loss:
@@ -664,7 +696,14 @@ class MultiPromptAttack(object):
         self.test_targets = test_targets
         self.test_workers = test_workers
         self.test_prefixes = test_prefixes
-        self.models = [worker.model for worker in workers]
+        self.models = [AutoModelForCausalLM.from_pretrained(
+            worker.model_path,
+            torch_dtype=torch.float16,
+            trust_remote_code=True,
+            device_map="auto",
+            low_cpu_mem_usage=True,
+            use_cache=True
+        ).eval() for worker in workers]
         self.logfile = logfile
         self.prompts = [
             managers['PM'](
@@ -822,14 +861,14 @@ class MultiPromptAttack(object):
 
     def test(self, workers, prompts, include_loss=False):
         for j, worker in enumerate(workers):
-            worker(prompts[j], "test", worker.model)
+            worker(prompts[j], "test")
         model_tests = np.array([worker.results.get() for worker in workers])
         model_tests_jb = model_tests[...,0].tolist()
         model_tests_mb = model_tests[...,1].tolist()
         model_tests_loss = []
         if include_loss:
             for j, worker in enumerate(workers):
-                worker(prompts[j], "test_loss", worker.model)
+                worker(prompts[j], "test_loss")
             model_tests_loss = [worker.results.get() for worker in workers]
 
         return model_tests_jb, model_tests_mb, model_tests_loss
@@ -985,23 +1024,7 @@ class ProgressiveMultiPromptAttack(object):
                             'progressive_goals': progressive_goals,
                             'progressive_models': progressive_models,
                             'control_init': control_init,
-                            'test_prefixes': test_prefixes,
-                            'models': [
-                                {
-                                    'model_path': worker.model.name_or_path,
-                                    'tokenizer_path': worker.tokenizer.name_or_path,
-                                    'conv_template': worker.conv_template.name
-                                }
-                                for worker in self.workers
-                            ],
-                            'test_models': [
-                                {
-                                    'model_path': worker.model.name_or_path,
-                                    'tokenizer_path': worker.tokenizer.name_or_path,
-                                    'conv_template': worker.conv_template.name
-                                }
-                                for worker in self.test_workers
-                            ]
+                            'test_prefixes': test_prefixes
                         },
                         'controls': [],
                         'losses': [],
@@ -1160,38 +1183,55 @@ class ProgressiveMultiPromptAttack(object):
 class ModelWorker(object):
 
     def __init__(self, model_path, model_kwargs, tokenizer, conv_template, device):
-        self.model = AutoModelForCausalLM.from_pretrained(
-            model_path,
-            torch_dtype=torch.float16,
-            trust_remote_code=True,
-            **model_kwargs
-        ).to(device).eval()
+        
         self.tokenizer = tokenizer
         self.conv_template = conv_template
         self.tasks = mp.JoinableQueue()
         self.results = mp.JoinableQueue()
         self.process = None
+        self.model_path = model_path
     
     @staticmethod
-    def run(model, tasks, results):
+    def run(tasks, results, path):
+        #device_map_manual = {'model.embed_tokens': 1, 'model.layers.0': 1, 'model.layers.1': 1, 'model.layers.2': 2, 'model.layers.3': 2, 'model.layers.4': 2, 'model.layers.5': 2, 'model.layers.6': 2, 'model.layers.7': 3, 'model.layers.8': 3, 'model.layers.9': 3, 'model.layers.10': 3, 'model.layers.11': 3, 'model.layers.12': 3, 'model.layers.13': 3, 'model.layers.14': 4, 'model.layers.15': 4, 'model.layers.16': 4, 'model.layers.17': 4, 'model.layers.18': 4, 'model.layers.19': 5, 'model.layers.20': 5, 'model.layers.21': 5, 'model.layers.22': 5, 'model.layers.23': 5, 'model.layers.24': 6, 'model.layers.25': 6, 'model.layers.26': 6, 'model.layers.27': 6, 'model.layers.28': 6, 'model.layers.29': 7, 'model.layers.30': 7, 'model.layers.31': 7, 'model.norm': 7, 'lm_head': 7}
+        #device_map_manual = {'model.embed_tokens': 0, 'model.layers.0': 1, 'model.layers.1': 1, 'model.layers.2': 1, 'model.layers.3': 1, 'model.layers.4': 1, 'model.layers.5': 1, 'model.layers.6': 1, 'model.layers.7': 1, 'model.layers.8': 1, 'model.layers.9': 1, 'model.layers.10': 2, 'model.layers.11': 2, 'model.layers.12': 2, 'model.layers.13': 2, 'model.layers.14': 2, 'model.layers.15': 2, 'model.layers.16': 2, 'model.layers.17': 2, 'model.layers.18': 2, 'model.layers.19': 2, 'model.layers.20': 2, 'model.layers.21': 3, 'model.layers.22': 3, 'model.layers.23': 3, 'model.layers.24': 3, 'model.layers.25': 3, 'model.layers.26': 3, 'model.layers.27': 3, 'model.layers.28': 3, 'model.layers.29': 3, 'model.layers.30': 3, 'model.layers.31': 3, 'model.norm': 3, 'lm_head': 3}
+        model = AutoModelForCausalLM.from_pretrained(
+            path,
+            torch_dtype=torch.float16,
+            trust_remote_code=True,
+            device_map="auto",
+            low_cpu_mem_usage=True,
+            use_cache=True
+        ).eval()
         while True:
             task = tasks.get()
+            
             if task is None:
                 break
             ob, fn, args, kwargs = task
             if fn == "grad":
                 with torch.enable_grad():
-                    results.put(ob.grad(*args, **kwargs))
+                    results.put(ob.grad(model))
+            elif fn == "safe_grad":
+                with torch.enable_grad():
+                    results.put(ob.safe_grad(model))
             else:
                 with torch.no_grad():
                     if fn == "logits":
-                        results.put(ob.logits(*args, **kwargs))
-                    elif fn == "contrast_logits":
-                        results.put(ob.contrast_logits(*args, **kwargs))
+                        results.put(ob.logits(model, *args, **kwargs))
+                    elif fn == "safe_logits":
+                        results.put(ob.logits_safe(model, *args, **kwargs))
                     elif fn == "test":
-                        results.put(ob.test(*args, **kwargs))
+                        results.put(ob.test(model, *args, **kwargs))
+                    elif fn == "test_adv":
+                        print("testing normal adv suffix")
+                        results.put(ob.test_adv(model, *args, **kwargs))
                     elif fn == "test_loss":
-                        results.put(ob.test_loss(*args, **kwargs))
+                        results.put(ob.test_loss(model, *args, **kwargs))
+                    elif fn == "safe_test":
+                        results.put(ob.safe_test(model, *args, **kwargs))
+                    elif fn == "safe_test_loss":
+                        results.put(ob.safe_loss(model, *args, **kwargs))
                     else:
                         results.put(fn(*args, **kwargs))
             tasks.task_done()
@@ -1199,10 +1239,9 @@ class ModelWorker(object):
     def start(self):
         self.process = mp.Process(
             target=ModelWorker.run,
-            args=(self.model, self.tasks, self.results)
+            args=(self.tasks, self.results, self.model_path)
         )
         self.process.start()
-        print(f"Started worker {self.process.pid} for model {self.model.name_or_path}")
         return self
     
     def stop(self):
