@@ -62,7 +62,7 @@ was Bel Let]\"> It\'\ si distinguish \({\footnote{[:// Inst bitimidenote]{BWebac
 
 ## Evaluation
 
-We provide a simple script in `experiments/test.py` to evaluate the robustness of generated suffixes on jailbreaks. 
+We provide a simple script in `experiments/test.py` to evaluate the robustness of generated suffixes on jailbreaks. Code will be updated with JailbreakBench evaluation later.
 
 ## Citation
 If you found our paper or repo interesting, thanks! Please consider citing the following
